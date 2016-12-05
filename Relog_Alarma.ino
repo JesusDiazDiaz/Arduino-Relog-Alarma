@@ -13,6 +13,7 @@ LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
 int hora_alarma = 1;
 int minuto_alarma = 1;
 int segundo_alarma = 1;
+int digPin = 10;
 
 
 //Varables para leer las teclas y el ADC
@@ -42,11 +43,12 @@ int read_LCD_buttons()
  if (adc_key_in < 555)  return btnIZQUIERDA; 
  if (adc_key_in < 790)  return btnSELECT;   
  
- return btnNADA;  // No debería llegar aquí, pero por las dudas retorna este valor.
+ return btnNADA;  // retornar por default btnNAda
 }
  
 
 void setup() {
+  pinMode(13, OUTPUT);
   lcd.begin(16, 2);                 //LCD de 16 columnas y 2 filas
   lcd.clear();                      //Borrar la pantalla
   lcd.setCursor(0, 0);              //Llevar el cursor al inicio
@@ -93,19 +95,24 @@ void setup() {
   lcd_key = btnNADA;
   delay(100);
   while(lcd_key != btnSELECT){
+    //capturar boton presionado
     lcd_key = read_LCD_buttons();
     delay(50);
     lcd.clear();
     lcd.setCursor(0,0);
+    //verificar precion de boton arriba
     if(lcd_key == btnARRIBA){
+      //incremetar minuto
       minuto_alarma++;
       if(minuto_alarma == 60){
         minuto_alarma = 0;
       }
       delay(200);
     }
-    
+
+    //verificar precion de boton abajo
     if(lcd_key == btnABAJO){
+      //decremento de minuto
       minuto_alarma--;
       if(minuto_alarma == 0){
         minuto_alarma = 59;
@@ -125,12 +132,22 @@ void loop() {
   Alarm.delay(1000);
 }
 
+//funcion ejecutada al momento de ejecutar la alarma
 void Alarma(){
   lcd.clear();
-  lcd.print("Alarma sonando!!");  
+  lcd.print("Alarma sonando!!");
+  sonar();
   delay(10000);
 }
 
+//fucion para sonar el buzzer
+void sonar(){
+  analogWrite(digPin, 127);
+  delay(10000);
+  analogWrite(digPin, 0);
+}
+
+//funcion para mostrar la hora
 void mostrarHora(){
   lcd.clear();
   lcd.setCursor(0, 0);
